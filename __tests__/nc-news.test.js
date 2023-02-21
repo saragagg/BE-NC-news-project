@@ -43,6 +43,7 @@ describe("app", () => {
             .expect(404)
             .then((result) => {
                 expect(result.res.statusMessage).toBe('Not Found')
+                expect(result.body.msg).toBe("Path not found")
             })
         })
         
@@ -82,7 +83,6 @@ describe("app", () => {
             .expect(200)
             .then(({body}) => {
                 const {articles} = body; 
-                console.log(articles)
                 const sortedArr = [...articles].sort((a, b) => {
                 return new Date(b.created_at) - new Date(a.created_at)});
                 
@@ -94,12 +94,54 @@ describe("app", () => {
             .get('/not-a-route')
             .expect(404)
             .then((result) => {
-                console.log(result.body)
+
                 expect(result.res.statusMessage).toBe('Not Found')
+            })
+        })
+    })
+    describe("GET - /api/articles/:article_id", () => {
+        it("200: GET - should respond with the article object of the article with the given article_id", () => {
+            return request(app)
+            .get("/api/articles/3")
+            .expect(200)
+            .then(({body}) => {
+                expect(typeof body.article).toBe("object");
+                expect(Array.isArray(body.article)).toBe(false)
+            })
+        })
+        it("200: GET - should respond with the requested article object, which should have the following properties: author, title, article_id, body, topic, created_at, votes, article_img_url", () => {
+            return request(app)
+            .get("/api/articles/3")
+            .expect(200)
+            .then(({body}) => {
+                const {article} = body;
+
+                expect(article).toHaveProperty("author", expect.any(String));
+                expect(article).toHaveProperty("title", expect.any(String));
+                expect(article).toHaveProperty("article_id", expect.any(Number));
+                expect(article).toHaveProperty("body", expect.any(String));
+                expect(article).toHaveProperty("topic", expect.any(String));
+                expect(article).toHaveProperty("created_at", expect.any(String));
+                expect(article).toHaveProperty("votes", expect.any(Number));
+                expect(article).toHaveProperty("article_img_url", expect.any(String));
+            })
+        })
+        it("400: GET - should respond with a bad request error message if passed an invalid article_id in the path", () => {
+            return request(app)
+            .get("/api/articles/anInvalidId")
+            .expect(400)
+            .then(({body}) => {
+                expect(body).toHaveProperty("msg", "Bad request")
+            })
+        })
+        it("404: GET - should respond with a 404 not found error message if passed a valid but inexistent article_id in the path", () => {
+            return request(app)
+            .get("/api/articles/55")
+            .expect(404)
+            .then(({body}) => {
+                expect(body).toHaveProperty("msg", "article_id not found")
             })
         })
     })
 })
 
-
-// articles should be sorted by date in descending order 

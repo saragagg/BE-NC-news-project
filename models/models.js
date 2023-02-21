@@ -23,8 +23,19 @@ function fetchArticles() {
     })
 }
 
+function fetchArticleById(id) {
+    return db.query(`
+    SELECT * FROM articles
+    WHERE article_id = $1`, [id]).then((result) => {
+        const {rowCount, rows} = result; 
+
+        if(rowCount === 0) {
+           return Promise.reject("article_id not found");
+        }
+        return rows[0];
+    })
+}
 
 
 
-
-module.exports = { fetchTopics, fetchArticles }
+module.exports = { fetchTopics, fetchArticles, fetchArticleById }
