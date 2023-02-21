@@ -1,3 +1,9 @@
+function handle404NonExistentPaths(req, res, next) {
+    res.status(404).send({ msg: "Path not found" })
+}
+
+
+
 function handlePSQL400err (err, req, res, next) {
     const psql400errors = ["22P02"];
 
@@ -24,4 +30,4 @@ function handleError500 (err, req, res, next) {
     res.status(500).send({msg: "Sorry, there has been an internal server error!"})
 }
 
-module.exports = {handleError500, handleCustomError, handlePSQL400err}
+module.exports = {handleError500, handleCustomError, handlePSQL400err, handle404NonExistentPaths }
