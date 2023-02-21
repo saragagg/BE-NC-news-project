@@ -2,9 +2,11 @@
 
 
 function handleCustomError (err, req, res, next) {
-    console.log(err)
+    console.log(" fivjhnhroifgvneofibv jief; ")
     if(err.statusMessage === "Not Found" && err.statusCode === 404) {
         res.status(404).send({msg: err.statusMessage})
+    } else {
+        next(err);
     }
 }
 
