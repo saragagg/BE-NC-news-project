@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const { getTopics, getArticles, getArticleById } = require('./controllers/controllers')
+const { getTopics, getArticles, getArticleById, getArticleComments } = require('./controllers/controllers')
 const { handleError500, handleCustomError, handlePSQL400err, handle404NonExistentPaths } = require('./controllers/errorHandlingcontrollers')
 
 
@@ -11,7 +11,7 @@ app.get('/api/articles', getArticles);
 
 app.get('/api/articles/:article_id', getArticleById);
 
-
+app.get('/api/articles/:article_id/comments', getArticleComments)
 
 app.use(handle404NonExistentPaths)
 

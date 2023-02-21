@@ -86,7 +86,7 @@ describe("app", () => {
                 const sortedArr = [...articles].sort((a, b) => {
                 return new Date(b.created_at) - new Date(a.created_at)});
                 
-                expect(articles).toEqual(sortedArr)
+                expect(articles).toEqual(sortedArr);
             })
         })
         it("404 - GET - should respond with a 404 status code if passed an invalid route as path", () => {
@@ -143,5 +143,47 @@ describe("app", () => {
             })
         })
     })
+    describe("GET - /api/articles/:article_id/comments", () => {
+        it("200: GET - should respond with an array of comments for the given article id. The array's length should reflect how many comments we have for the requested article", () => {
+            return request(app)
+            .get("/api/articles/3/comments")
+            .expect(200)
+            .then(({body}) => {
+                expect(body).toHaveProperty("comments");
+                const {comments} = body;
+                expect(comments).toBeInstanceOf(Array); 
+                expect(comments).toHaveLength(2);
+            })
+        })
+        it("200: GET - should respond with an array of comments for the requested article. Each comment should have the following properties: comment_id, votes, created_at, author, body, article_id", () => {
+            return request(app)
+            .get("/api/articles/3/comments")
+            .expect(200)
+            .then(({ body: {comments} }) => {
+                comments.forEach(comment => {
+                    expect(comment).toHaveProperty("comment_id", expect.any(Number));
+                    expect(comment).toHaveProperty("votes", expect.any(Number));
+                    expect(comment).toHaveProperty("created_at", expect.any(String));
+                    expect(comment).toHaveProperty("author", expect.any(String));
+                    expect(comment).toHaveProperty("body", expect.any(String));
+                    expect(comment).toHaveProperty("article_id", expect.any(Number));
+                })
+
+            })
+        })
+        it("200: GET - should respond with an array of comments for the requested article. The comments should be ordered by date with the most recent comment first", () => {
+            return request(app)
+            .get("/api/articles/3/comments")
+            .expect(200)
+            .then(({ body: {comments} }) => {
+                expect(comments).toBeSortedBy("created_at", {descending: true});
+            })
+        })
+    })
 })
 
+
+
+// handle 400 Bad request, wrong data type as article id psql error 
+// handle 404 not found - valid but not existing id 
+// handle 200 - empty array as a response - valid and existing id, no comments for that article 

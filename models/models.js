@@ -23,10 +23,10 @@ function fetchArticles() {
     })
 }
 
-function fetchArticleById(id) {
+function fetchArticleById(article_id) {
     return db.query(`
     SELECT * FROM articles
-    WHERE article_id = $1`, [id]).then((result) => {
+    WHERE article_id = $1`, [article_id]).then((result) => {
         const {rowCount, rows} = result; 
 
         if(rowCount === 0) {
@@ -36,6 +36,16 @@ function fetchArticleById(id) {
     })
 }
 
+function fetchCommentsByArticleId(article_id) {
+    return db.query(`
+    SELECT * FROM comments
+    WHERE article_id = $1
+    ORDER BY created_at DESC;
+    `, [article_id]).then(({rows, rowCount}) => {
+        return rows;
+    }) 
+}
 
+// SELECT * FROM comments WHERE article_id=2
 
-module.exports = { fetchTopics, fetchArticles, fetchArticleById }
+module.exports = { fetchTopics, fetchArticles, fetchArticleById, fetchCommentsByArticleId }
