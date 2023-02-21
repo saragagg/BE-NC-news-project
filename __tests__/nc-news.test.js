@@ -179,11 +179,29 @@ describe("app", () => {
                 expect(comments).toBeSortedBy("created_at", {descending: true});
             })
         })
+        it("400: GET should respond with a Bad request error message if an invalid article_id is passed in the request path", () => {
+            return request(app)
+            .get("/api/articles/IAmAnInvalidId/comments")
+            .expect(400)
+            .then(({body}) => {
+                expect(body).toHaveProperty("msg", "Bad request");
+            })
+        })
+        it("404: GET should respond with a Not found error message if a valid but non existing article_id is passed in the request path", () => {
+            return request(app)
+            .get("/api/articles/125/comments")
+            .expect(404)
+            .then(({body}) => {
+                expect(body).toHaveProperty("msg", "article_id not found");
+            })
+        })
+        it("200: GET should respond with a successful error code and an empty array of the comments in the response object if a valid and existing article_id is passed in the request path, but there is no comment for that article", () => {
+            return request(app)
+            .get("/api/articles/4/comments")
+            .expect(200)
+            .then(({body}) => {
+                expect(body).toHaveProperty("comments", []);
+            })
+        })
     })
 })
-
-
-
-// handle 400 Bad request, wrong data type as article id psql error 
-// handle 404 not found - valid but not existing id 
-// handle 200 - empty array as a response - valid and existing id, no comments for that article 

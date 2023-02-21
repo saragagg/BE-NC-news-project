@@ -28,15 +28,20 @@ function getArticleById(req, res, next) {
     })
 }
 
+
 function getArticleComments (req, res, next) {
     const {article_id} = req.params;
+    const articleCheck = fetchArticleById(article_id);
+    const commentsByArticlePromise = fetchCommentsByArticleId(article_id);
 
-    fetchCommentsByArticleId(article_id).then((comments) => {
+    Promise.all([commentsByArticlePromise, articleCheck]).then(([comments]) => {
+     
         res.status(200).send({comments})
-    }).catch(err => {
+        }).catch(err => {
         next(err);
     })
 }
+
 
 
 
