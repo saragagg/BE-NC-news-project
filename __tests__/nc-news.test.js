@@ -43,9 +43,38 @@ describe("app", () => {
             .expect(404)
             .then((result) => {
                 expect(result.res.statusMessage).toBe('Not Found')
+                expect(result.body.msg).toBe("Path not found")
             })
         })
         
+    })
+    describe("GET - /api/articles/:article_id", () => {
+        it("200: GET - should respond with the article object of the article with the given article_id", () => {
+            return request(app)
+            .get("/api/articles/3")
+            .expect(200)
+            .then(({body}) => {
+                expect(typeof body.article).toBe("object");
+                expect(Array.isArray(body.article)).toBe(false)
+            })
+        })
+        it("200: GET - should respond with the requested article object, which should have the following properties: author, title, article_id, body, topic, created_at, votes, article_img_url", () => {
+            return request(app)
+            .get("/api/articles/3")
+            .expect(200)
+            .then(({body}) => {
+                const {article} = body;
+
+                expect(article).toHaveProperty("author", expect.any(String));
+                expect(article).toHaveProperty("title", expect.any(String));
+                expect(article).toHaveProperty("article_id", expect.any(Number));
+                expect(article).toHaveProperty("body", expect.any(String));
+                expect(article).toHaveProperty("topic", expect.any(String));
+                expect(article).toHaveProperty("created_at", expect.any(String));
+                expect(article).toHaveProperty("votes", expect.any(Number));
+                expect(article).toHaveProperty("article_img_url", expect.any(String));
+            })
+        })
     })
 })
 
@@ -53,9 +82,6 @@ describe("app", () => {
 
 
 
-
-
-//handle 500 status code 
-
-// Errors needs to be handled.
+// handle 404 error 
+// handle 400 band request error 
 
