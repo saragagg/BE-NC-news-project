@@ -6,6 +6,7 @@ const {
   getArticleById,
   getArticleComments,
   postComment,
+  getUsers,
 } = require("./controllers/controllers");
 const {
   handleError500,
@@ -26,7 +27,7 @@ app.get("/api/articles/:article_id/comments", getArticleComments);
 
 app.post("/api/articles/:article_id/comments", postComment);
 
-
+app.get("/api/users", getUsers);
 
 app.use(handle404NonExistentPaths);
 

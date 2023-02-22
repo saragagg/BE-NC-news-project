@@ -4,6 +4,7 @@ const {
   fetchArticleById,
   fetchCommentsByArticleId,
   insertComment,
+  fetchUsers,
 } = require("../models/models");
 
 function getTopics(req, res, next) {
@@ -63,10 +64,17 @@ function postComment(req, res, next) {
     });
 }
 
+function getUsers(req, res, next) {
+  fetchUsers().then((users) => {
+    res.status(200).send({ users })
+  });
+}
+
 module.exports = {
   getTopics,
   getArticles,
   getArticleById,
   getArticleComments,
   postComment,
+  getUsers,
 };

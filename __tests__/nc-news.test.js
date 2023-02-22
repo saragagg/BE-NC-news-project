@@ -272,4 +272,32 @@ describe("app", () => {
         });
     });
   });
+
+  describe("GET - /api/users", () => {
+    it("200: GET - should respond with an array of user objects", () => {
+      return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({ body }) => {
+          const { users } = body;
+
+          expect(body).toHaveProperty("users");
+          expect(users).toBeInstanceOf(Array);
+        });
+    });
+    it("200: GET - should respond with an array of user objects. Each object should have the following properties: username, name, avatar_url", () => {
+      return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({ body: {users} }) => {
+          users.forEach(user => {
+            expect(user).toHaveProperty("username", expect.any(String));
+            expect(user).toHaveProperty("name", expect.any(String));
+            expect(user).toHaveProperty("avatar_url", expect.any(String));
+          })
+        })
+    })
+  });
 });
+
+// test 400 bad request for non existent path if any typo is present in the path

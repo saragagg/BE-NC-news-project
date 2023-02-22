@@ -80,10 +80,19 @@ function insertComment(article_id, username, body) {
     });
 }
 
+function fetchUsers() {
+  return db.query(`
+  SELECT *
+  FROM users;`).then(({rows}) => {
+    return rows;
+  })
+}
+
 module.exports = {
   fetchTopics,
   fetchArticles,
   fetchArticleById,
   fetchCommentsByArticleId,
   insertComment,
+  fetchUsers,
 };
