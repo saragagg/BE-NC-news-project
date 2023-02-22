@@ -18,14 +18,16 @@ function handleCustomError(err, req, res, next) {
   } else if (err === "article_id not found") {
     res.status(404).send({ msg: err });
   } else if (err.code === "23503") {
-    res.status(404).send({ msg: "article_id not found" })
+    res.status(404).send({ msg: "article_id not found" });
   } else {
     next(err);
   }
 }
 
 function handleError500(err, req, res, next) {
-  res.status(500).send({ msg: "Sorry, there has been an internal server error!" });
+  res
+    .status(500)
+    .send({ msg: "Sorry, there has been an internal server error!" });
 }
 
 module.exports = {

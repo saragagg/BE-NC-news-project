@@ -145,6 +145,66 @@ describe("app", () => {
         });
     });
   });
+  describe("GET - /api/articles/:article_id/comments", () => {
+    it("200: GET - should respond with an array of comments for the given article id. The array's length should reflect how many comments we have for the requested article", () => {
+      return request(app)
+        .get("/api/articles/3/comments")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("comments");
+          const { comments } = body;
+          expect(comments).toBeInstanceOf(Array);
+          expect(comments).toHaveLength(2);
+        });
+    });
+    it("200: GET - should respond with an array of comments for the requested article. Each comment should have the following properties: comment_id, votes, created_at, author, body, article_id", () => {
+      return request(app)
+        .get("/api/articles/3/comments")
+        .expect(200)
+        .then(({ body: { comments } }) => {
+          comments.forEach((comment) => {
+            expect(comment).toHaveProperty("comment_id", expect.any(Number));
+            expect(comment).toHaveProperty("votes", expect.any(Number));
+            expect(comment).toHaveProperty("created_at", expect.any(String));
+            expect(comment).toHaveProperty("author", expect.any(String));
+            expect(comment).toHaveProperty("body", expect.any(String));
+            expect(comment).toHaveProperty("article_id", expect.any(Number));
+          });
+        });
+    });
+    it("200: GET - should respond with an array of comments for the requested article. The comments should be ordered by date with the most recent comment first", () => {
+      return request(app)
+        .get("/api/articles/3/comments")
+        .expect(200)
+        .then(({ body: { comments } }) => {
+          expect(comments).toBeSortedBy("created_at", { descending: true });
+        });
+    });
+    it("400: GET should respond with a Bad request error message if an invalid article_id is passed in the request path", () => {
+      return request(app)
+        .get("/api/articles/IAmAnInvalidId/comments")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg", "Bad request");
+        });
+    });
+    it("404: GET should respond with a Not found error message if a valid but non existing article_id is passed in the request path", () => {
+      return request(app)
+        .get("/api/articles/125/comments")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg", "article_id not found");
+        });
+    });
+    it("200: GET should respond with a successful error code and an empty array of the comments in the response object if a valid and existing article_id is passed in the request path, but there is no comment for that article", () => {
+      return request(app)
+        .get("/api/articles/4/comments")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("comments", []);
+        });
+    });
+  });
   describe("POST - /api/articles/:article_id/comments", () => {
     it("201: POST - should post a new comment for the given article and respond with the posted comment", () => {
       const newComment = {
@@ -198,18 +258,18 @@ describe("app", () => {
         });
     });
     it("404: POST - should respond with a 404 error when a valid but non existend article_id is passed in the path", () => {
-        const newComment = {
-            username: "rogersop",
-            body: "This article is fantastic"
-        };
+      const newComment = {
+        username: "rogersop",
+        body: "This article is fantastic",
+      };
 
-        return request(app)
+      return request(app)
         .post("/api/articles/65/comments")
         .send(newComment)
         .expect(404)
-        .then(({body}) => {
-            expect(body).toEqual({msg: "article_id not found"})
-        })
-    })
+        .then(({ body }) => {
+          expect(body).toEqual({ msg: "article_id not found" });
+        });
+    });
   });
 });
