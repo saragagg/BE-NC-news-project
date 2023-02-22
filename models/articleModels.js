@@ -1,17 +1,5 @@
 const db = require("../db/connection");
 
-function fetchTopics() {
-  return db
-    .query(
-      `
-    SELECT * FROM topics
-    `
-    )
-    .then(({ rows }) => {
-      return rows;
-    });
-}
-
 function fetchArticles() {
   return db
     .query(
@@ -49,50 +37,24 @@ function fetchArticleById(article_id) {
     });
 }
 
-function fetchCommentsByArticleId(article_id) {
-  return db
-    .query(
-      `
-  SELECT * FROM comments
-  WHERE article_id = $1
-  ORDER BY created_at DESC;
-  `,
-      [article_id]
-    )
-    .then(({ rows }) => {
-      return rows;
-    });
-}
+function updateVote(article_id, inc_votes) {
 
-function insertComment(article_id, username, body) {
   return db
     .query(
       `
-    INSERT INTO comments
-    (body, article_id, author)
-    VALUES 
-    ($1, $2, $3)
+    UPDATE articles
+    SET votes = votes + $1
+    WHERE article_id = $2
     RETURNING *`,
-      [body, article_id, username]
+      [inc_votes, article_id]
     )
     .then(({ rows }) => {
       return rows[0];
     });
 }
 
-function fetchUsers() {
-  return db.query(`
-  SELECT *
-  FROM users;`).then(({rows}) => {
-    return rows;
-  })
-}
-
 module.exports = {
-  fetchTopics,
   fetchArticles,
   fetchArticleById,
-  fetchCommentsByArticleId,
-  insertComment,
-  fetchUsers,
+  updateVote,
 };

@@ -1,19 +1,23 @@
 const express = require("express");
 const app = express();
+const { getTopics } = require("./controllers/topicsControllers");
+
 const {
-  getTopics,
   getArticles,
   getArticleById,
-  getArticleComments,
-  postComment,
-  getUsers,
-} = require("./controllers/controllers");
+  patchArticleVote,
+} = require("./controllers/articleController");
+
+const { postComment, getArticleComments } = require("./controllers/commentsControllers");
+
 const {
   handleError500,
   handleCustomError,
   handlePSQL400err,
   handle404NonExistentPaths,
 } = require("./controllers/errorHandlingcontrollers");
+
+const { getUsers } = require("./controllers/userControllers")
 
 app.use(express.json());
 
@@ -27,7 +31,10 @@ app.get("/api/articles/:article_id/comments", getArticleComments);
 
 app.post("/api/articles/:article_id/comments", postComment);
 
+app.patch("/api/articles/:article_id", patchArticleVote);
+
 app.get("/api/users", getUsers);
+
 
 app.use(handle404NonExistentPaths);
 

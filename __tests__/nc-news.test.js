@@ -272,7 +272,65 @@ describe("app", () => {
         });
     });
   });
+  describe("PATCH - /api/articles/:article_id", () => {
+    it("201: PATCH - should take an object with an inc_votes property and increment/decrement the article's votes by the given value. The server should respond with the updated article.", () => {
+      const expectedUpdatedArticle = {
+        article_id: 4,
+        title: "Student SUES Mitch!",
+        topic: "mitch",
+        author: "rogersop",
+        body: "We all love Mitch and his wonderful, unique typing style. However, the volume of his typing has ALLEGEDLY burst another students eardrums, and they are now suing for damages",
+        created_at: "2020-05-06T01:14:00.000Z",
+        votes: 2,
+        article_img_url:
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+      };
 
+      return request(app)
+        .patch("/api/articles/4")
+        .send({ inc_votes: 2 })
+        .expect(201)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("updatedArticle", expectedUpdatedArticle);
+        });
+    });
+    it("400: PATCH - should respond with a 400 bad request error if the object passed in the request body doesn't contain an inc_votes property", () => {
+      return request(app)
+        .patch("/api/articles/4")
+        .send({ anotherProperty: 3 })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg", "Bad request");
+        });
+    });
+    it("400: PATCH - should respond with a 400 bad request error if the object passed in the request body contains an inc_votes property which is not a number", () => {
+      return request(app)
+        .patch("/api/articles/4")
+        .send({ inc_votes: "i am not a number" })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg", "Bad request");
+        });
+    });
+    it("400: PATCH - should respond with a 400 bad request error if the article_id passed in the path is invalid", () => {
+      return request(app)
+        .patch("/api/articles/iAmAnInvalidId")
+        .send({ inc_votes: 2 })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg", "Bad request");
+        });
+    });
+    it("404: PATCH - should respond with a 404 not found error if the article_id passed in the path is valid but non existent", () => {
+      return request(app)
+        .patch("/api/articles/98")
+        .send({ inc_votes: 2 })
+        .expect(404)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg", "article_id not found");
+        });
+    });
+  });
   describe("GET - /api/users", () => {
     it("200: GET - should respond with an array of user objects", () => {
       return request(app)
@@ -296,8 +354,8 @@ describe("app", () => {
             expect(user).toHaveProperty("avatar_url", expect.any(String));
           })
         })
+      })
     })
-  });
 });
 
 // test 400 bad request for non existent path if any typo is present in the path
