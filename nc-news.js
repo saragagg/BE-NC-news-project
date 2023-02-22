@@ -1,12 +1,16 @@
 const express = require("express");
 const app = express();
+const { getTopics } = require("./controllers/topicsControllers");
+
 const {
-  getTopics,
   getArticles,
   getArticleById,
-  getArticleComments,
-  postComment,
-} = require("./controllers/controllers");
+  
+  patchArticleVote,
+} = require("./controllers/articleController");
+
+const { postComment, getArticleComments } = require("./controllers/commentsControllers");
+
 const {
   handleError500,
   handleCustomError,
@@ -26,7 +30,7 @@ app.get("/api/articles/:article_id/comments", getArticleComments);
 
 app.post("/api/articles/:article_id/comments", postComment);
 
-
+app.patch("/api/articles/:article_id", patchArticleVote);
 
 app.use(handle404NonExistentPaths);
 
