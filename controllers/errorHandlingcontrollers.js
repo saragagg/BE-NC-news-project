@@ -7,7 +7,7 @@ function handle404NonExistentPaths(req, res, next) {
 function handlePSQL400err (err, req, res, next) {
     const psql400errors = ["22P02"];
 
-    if(psql400errors.includes(err.code)) {
+    if(psql400errors.includes(err.code) || err === "Bad request") {
         res.status(400).send({msg: "Bad request"})
     } else {
         next(err)
