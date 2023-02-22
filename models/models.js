@@ -64,21 +64,39 @@ function fetchCommentsByArticleId(article_id) {
     });
 }
 
+function insertComment(article_id, username, body) {
+  return db
+    .query(
+      `
+    INSERT INTO comments
+    (body, article_id, author)
+    VALUES 
+    ($1, $2, $3)
+    RETURNING *`,
+      [body, article_id, username]
+    )
+    .then(({ rows }) => {
+      return rows[0];
+    });
+}
 
 function updateVote(article_id, inc_votes) {
-  
-  if(!inc_votes) {
-    return Promise.reject("Bad request")
-  } 
+  if (!inc_votes) {
+    return Promise.reject("Bad request");
+  }
 
-  return db.query(`
+  return db
+    .query(
+      `
     UPDATE articles
     SET votes = votes + $1
     WHERE article_id = $2
-    RETURNING *`, [inc_votes, article_id]).then(({rows}) => {
+    RETURNING *`,
+      [inc_votes, article_id]
+    )
+    .then(({ rows }) => {
       return rows[0];
-    })
-  
+    });
 }
 
 module.exports = {
@@ -86,5 +104,6 @@ module.exports = {
   fetchArticles,
   fetchArticleById,
   fetchCommentsByArticleId,
-  updateVote
+  insertComment,
+  updateVote,
 };

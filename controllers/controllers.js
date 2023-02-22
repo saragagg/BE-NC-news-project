@@ -3,7 +3,8 @@ const {
   fetchArticles,
   fetchArticleById,
   fetchCommentsByArticleId,
-  updateVote,
+  insertComment,
+  updateVote
 } = require("../models/models");
 
 function getTopics(req, res, next) {
@@ -52,6 +53,18 @@ function getArticleComments(req, res, next) {
     });
 }
 
+function postComment(req, res, next) {
+  const { article_id } = req.params;
+  const { username, body } = req.body;
+  insertComment(article_id, username, body)
+    .then((posted_comment) => {
+      res.status(201).send({ posted_comment });
+    })
+    .catch((err) => {
+      next(err);
+    });
+}
+
 function patchArticleVote(req, res, next) {
   const { article_id } = req.params;
   const { inc_votes } = req.body;
@@ -67,10 +80,13 @@ function patchArticleVote(req, res, next) {
     });
 }
 
+
+
 module.exports = {
   getTopics,
   getArticles,
   getArticleById,
   getArticleComments,
-  patchArticleVote,
+   postComment,
+   patchArticleVote,
 };

@@ -205,9 +205,75 @@ describe("app", () => {
         });
     });
   });
+  describe("POST - /api/articles/:article_id/comments", () => {
+    it("201: POST - should post a new comment for the given article and respond with the posted comment", () => {
+      const newComment = {
+        username: "rogersop",
+        body: "This article is fantastic",
+      };
+
+      const expectedResponse = {
+        article_id: 2,
+        author: "rogersop",
+        body: "This article is fantastic",
+        comment_id: 19,
+        created_at: expect.any(String),
+        votes: 0,
+      };
+
+      return request(app)
+        .post("/api/articles/2/comments")
+        .send(newComment)
+        .expect(201)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("posted_comment", expectedResponse);
+        });
+    });
+    it("400: POST - should respond with a 400 bad request error when an invalid article_id is passed in the path", () => {
+      const newComment = {
+        username: "rogersop",
+        body: "This article is fantastic",
+      };
+
+      return request(app)
+        .post("/api/articles/iAmAnInvalidId/comments")
+        .send(newComment)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body).toEqual({ msg: "Bad request" });
+        });
+    });
+    it("400: POST - should respond with a 400 bad request error when the comment object in the request body doesn't follow the required structure (object with username and body as properties", () => {
+      const newComment = {
+        anIncorrectProperty: "rogersop",
+        anotherIncorrectProperty: "This article is fantastic",
+      };
+
+      return request(app)
+        .post("/api/articles/2/comments")
+        .send(newComment)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body).toEqual({ msg: "Bad request" });
+        });
+    });
+    it("404: POST - should respond with a 404 error when a valid but non existend article_id is passed in the path", () => {
+      const newComment = {
+        username: "rogersop",
+        body: "This article is fantastic",
+      };
+
+      return request(app)
+        .post("/api/articles/65/comments")
+        .send(newComment)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body).toEqual({ msg: "article_id not found" });
+        });
+    });
+  });
   describe("PATCH - /api/articles/:article_id", () => {
     it("201: PATCH - should take an object with an inc_votes property and increment/decrement the article's votes by the given value. The server should respond with the updated article.", () => {
-
       const expectedUpdatedArticle = {
         article_id: 4,
         title: "Student SUES Mitch!",
@@ -236,7 +302,7 @@ describe("app", () => {
         .then(({ body }) => {
           expect(body).toHaveProperty("msg", "Bad request");
         });
-    })
+    });
     it("400: PATCH - should respond with a 400 bad request error if the object passed in the request body contains an inc_votes property which is not a number", () => {
       return request(app)
         .patch("/api/articles/4")
@@ -245,7 +311,7 @@ describe("app", () => {
         .then(({ body }) => {
           expect(body).toHaveProperty("msg", "Bad request");
         });
-    })
+    });
     it("400: PATCH - should respond with a 400 bad request error if the article_id passed in the path is invalid", () => {
       return request(app)
         .patch("/api/articles/iAmAnInvalidId")
@@ -254,7 +320,7 @@ describe("app", () => {
         .then(({ body }) => {
           expect(body).toHaveProperty("msg", "Bad request");
         });
-    })
+    });
     it("404: PATCH - should respond with a 404 not found error if the article_id passed in the path is valid but non existent", () => {
       return request(app)
         .patch("/api/articles/98")
@@ -263,8 +329,6 @@ describe("app", () => {
         .then(({ body }) => {
           expect(body).toHaveProperty("msg", "article_id not found");
         });
-    })
+    });
   });
 });
-
-
