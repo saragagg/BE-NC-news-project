@@ -1,13 +1,15 @@
 const express = require("express");
 const app = express();
+const { getTopics } = require("./controllers/topicsControllers");
+
 const {
-  getTopics,
   getArticles,
   getArticleById,
-  getArticleComments,
-  postComment,
-  patchArticleVote
-} = require("./controllers/controllers");
+  
+  patchArticleVote,
+} = require("./controllers/articleController");
+
+const { postComment, getArticleComments } = require("./controllers/commentsControllers");
 
 const {
   handleError500,
