@@ -8,7 +8,10 @@ const {
   patchArticleVote,
 } = require("./controllers/articleController");
 
-const { postComment, getArticleComments } = require("./controllers/commentsControllers");
+const {
+  postComment,
+  getArticleComments,
+} = require("./controllers/commentsControllers");
 
 const {
   handleError500,
@@ -17,7 +20,7 @@ const {
   handle404NonExistentPaths,
 } = require("./controllers/errorHandlingcontrollers");
 
-const { getUsers } = require("./controllers/userControllers")
+const { getUsers } = require("./controllers/userControllers");
 
 app.use(express.json());
 
@@ -34,7 +37,6 @@ app.post("/api/articles/:article_id/comments", postComment);
 app.patch("/api/articles/:article_id", patchArticleVote);
 
 app.get("/api/users", getUsers);
-
 
 app.use(handle404NonExistentPaths);
 

@@ -347,21 +347,56 @@ describe("app", () => {
       return request(app)
         .get("/api/users")
         .expect(200)
-        .then(({ body: {users} }) => {
-          users.forEach(user => {
+        .then(({ body: { users } }) => {
+          users.forEach((user) => {
             expect(user).toHaveProperty("username", expect.any(String));
             expect(user).toHaveProperty("name", expect.any(String));
             expect(user).toHaveProperty("avatar_url", expect.any(String));
-          })
-        })
-      })
-      it("404: GET - should respond with a 404 error message if there's any typo in the path (non existent path", () => {
-        return request(app)
+          });
+        });
+    });
+    it("404: GET - should respond with a 404 error message if there's any typo in the path (non existent path", () => {
+      return request(app)
         .get("/api/usfers")
         .expect(404)
         .then(({ body }) => {
-          expect(body).toHaveProperty("msg", "Path not found")
-          })
-      })
-    })
+          expect(body).toHaveProperty("msg", "Path not found");
+        });
+    });
+  });
+  describe("GET - /api/articles/:article_id (comment count)", () => {
+    it("200: GET - should respond with the article object requested based on the article_id. The article object should now include a comment_count property", () => {
+      return request(app)
+        .get("/api/articles/3")
+        .expect(200)
+        .then(({ body: { article } }) => {
+          console.log(article);
+          expect(article).toHaveProperty("comment_count", "2");
+        });
+    });
+    it("200: GET - should respond with the article object requested based on the article_id. The article object should now include a comment_count property, which will be 0 if that article has no comment", () => {
+      return request(app)
+        .get("/api/articles/4")
+        .expect(200)
+        .then(({ body: {article} }) => {
+          expect(article).toHaveProperty("comment_count", "0");
+        });
+    });
+    it("404: GET - should respond with a 404 not found error if passed a valid but non existent article_id", () => {
+      return request(app)
+        .get("/api/articles/78")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg", "article_id not found");
+        });
+    });
+    it("400: GET - should respond with a 400 bad request error if passed a valid but non existent article_id", () => {
+      return request(app)
+        .get("/api/articles/notAnId")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg", "Bad request");
+        });
+    });
+  });
 });
