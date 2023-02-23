@@ -453,7 +453,6 @@ describe("app", () => {
         .get("/api/articles/3")
         .expect(200)
         .then(({ body: { article } }) => {
-          console.log(article);
           expect(article).toHaveProperty("comment_count", "2");
         });
     });
