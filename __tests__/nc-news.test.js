@@ -331,4 +331,37 @@ describe("app", () => {
         });
     });
   });
+  describe("GET - /api/users", () => {
+    it("200: GET - should respond with an array of user objects", () => {
+      return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({ body }) => {
+          const { users } = body;
+
+          expect(body).toHaveProperty("users");
+          expect(users).toBeInstanceOf(Array);
+        });
+    });
+    it("200: GET - should respond with an array of user objects. Each object should have the following properties: username, name, avatar_url", () => {
+      return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({ body: {users} }) => {
+          users.forEach(user => {
+            expect(user).toHaveProperty("username", expect.any(String));
+            expect(user).toHaveProperty("name", expect.any(String));
+            expect(user).toHaveProperty("avatar_url", expect.any(String));
+          })
+        })
+      })
+      it("404: GET - should respond with a 404 error message if there's any typo in the path (non existent path", () => {
+        return request(app)
+        .get("/api/usfers")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg", "Path not found")
+          })
+      })
+    })
 });
