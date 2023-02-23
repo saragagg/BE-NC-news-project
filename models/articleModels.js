@@ -1,22 +1,28 @@
 const db = require("../db/connection");
 
-function fetchArticles() {
-  return db
-    .query(
-      `
-    SELECT 
-    articles.article_id, articles.title, articles.topic, articles.author, articles.created_at, articles.votes, articles.article_img_url, 
-    COUNT(comments.article_id) AS comment_count 
-    FROM articles
-    LEFT JOIN comments
-    ON articles.article_id=comments.article_id
+function fetchArticles(topic, sort_by = "articles.created_at", order = "DESC") {
+  let queryStr = `
+  SELECT 
+  articles.article_id, articles.title, articles.topic, articles.author, articles.created_at, articles.votes, articles.article_img_url, 
+  COUNT(comments.article_id) AS comment_count 
+  FROM articles
+  LEFT JOIN comments
+  ON articles.article_id=comments.article_id`;
+  const queryValues = [sort_by, order];
+
+  if (topic) {
+    queryValues.unshift(topic);
+    queryStr += ` WHERE topic = $1
     GROUP BY articles.article_id
-    ORDER BY articles.created_at DESC;
-    `
-    )
-    .then(({ rows }) => {
-      return rows;
-    });
+    ORDER BY $2, $3`;
+  } else {
+    queryStr += ` GROUP BY articles.article_id
+    ORDER BY $1, $2`;
+  }
+
+  return db.query(queryStr, queryValues).then(({ rows }) => {
+    return rows;
+  });
 }
 
 function fetchArticleById(article_id) {
@@ -38,7 +44,6 @@ function fetchArticleById(article_id) {
 }
 
 function updateVote(article_id, inc_votes) {
-
   return db
     .query(
       `

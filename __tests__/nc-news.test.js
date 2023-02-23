@@ -3,6 +3,7 @@ const request = require("supertest");
 const db = require("../db/connection");
 const seed = require("../db/seeds/seed.js");
 const data = require("../db/data/test-data");
+const { forEach } = require("../db/data/test-data/articles");
 
 beforeEach(() => {
   return seed(data);
@@ -331,4 +332,41 @@ describe("app", () => {
         });
     });
   });
+
+  describe("GET - /api/articles(queries)", () => {
+    it("200: GET - should accept a topic query and respond with an array of articles filtered by the topic value specified. if the topic is missing, it should respond with all articles", () => {
+      
+      return request(app)
+        .get("/api/articles?topic=mitch")
+        .expect(200)
+        .then(({ body }) => {
+          const {articles} = body;
+
+          expect(body).toHaveProperty("articles");
+          expect(articles).toBeInstanceOf(Array)
+          expect(articles).toHaveLength(11);
+          articles.forEach(article => {
+            expect(article).toHaveProperty("topic", "mitch")
+          })
+        });
+    })
+    // it("200: GET - should accept a topic query and a sort_by query respond with an array of articles(filtered by the topic value if present) sorted by any valid column (defaults to date)", () => {
+      
+    //   return request(app)
+    //     .get("/api/articles?topic=mitch&sort_by=")
+    //     .expect(200)
+    //     .then(({ body }) => {
+    //       const {articles} = body;
+
+    //       expect(body).toHaveProperty("articles");
+    //       expect(articles).toBeInstanceOf(Array)
+    //       expect(articles).toHaveLength(11);
+    //     });
+    // })
+  });
+
 });
+
+
+//SELECT * FROM articles WHERE topic = 'mitch';
+//check that the sort by value is an existing column in the articles table 

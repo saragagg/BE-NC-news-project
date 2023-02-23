@@ -5,7 +5,9 @@ const {
 } = require("../models/articleModels");
 
 function getArticles(req, res, next) {
-  fetchArticles()
+  const {topic, sort_by, order} = req.query;
+
+  fetchArticles(topic, sort_by, order)
     .then((articles) => {
       res.status(200).send({ articles });
     })
@@ -41,6 +43,8 @@ function patchArticleVote(req, res, next) {
       next(err);
     });
 }
+
+
 
 module.exports = {
   getArticles,
