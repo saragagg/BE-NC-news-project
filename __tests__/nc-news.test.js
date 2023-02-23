@@ -388,7 +388,7 @@ describe("app", () => {
         .get("/api/articles?topic=mitch&sort_by=author")
         .expect(200)
         .then(({ body: {articles} }) => {
-
+          expect(articles.length >0).toBe(true);
           expect(articles).toBeSortedBy("author", { descending: true })
         });
     })
