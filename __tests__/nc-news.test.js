@@ -355,7 +355,13 @@ describe("app", () => {
           })
         })
       })
+      it("404: GET - should respond with a 404 error message if there's any typo in the path (non existent path", () => {
+        return request(app)
+        .get("/api/usfers")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg", "Path not found")
+          })
+      })
     })
 });
-
-// test 400 bad request for non existent path if any typo is present in the path
