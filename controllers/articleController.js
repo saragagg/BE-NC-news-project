@@ -4,9 +4,15 @@ const {
   updateVote
 } = require("../models/articleModels");
 
+const {checkTopicExists} = require("../models/topicModels")
+
 function getArticles(req, res, next) {
-  fetchArticles()
-    .then((articles) => {
+  const {topic, sort_by, order} = req.query;
+  
+  const articlesPromise = fetchArticles(topic, sort_by, order);
+  const topicCheck = topic ? checkTopicExists(topic) : [];
+ 
+  Promise.all([articlesPromise, topicCheck]).then(([articles]) => {
       res.status(200).send({ articles });
     })
     .catch((err) => {
@@ -41,6 +47,8 @@ function patchArticleVote(req, res, next) {
       next(err);
     });
 }
+
+
 
 module.exports = {
   getArticles,

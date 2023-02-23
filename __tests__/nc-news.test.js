@@ -3,6 +3,7 @@ const request = require("supertest");
 const db = require("../db/connection");
 const seed = require("../db/seeds/seed.js");
 const data = require("../db/data/test-data");
+const { forEach } = require("../db/data/test-data/articles");
 
 beforeEach(() => {
   return seed(data);
@@ -364,6 +365,88 @@ describe("app", () => {
         });
     });
   });
+  describe("GET - /api/articles(queries)", () => {
+    it("200: GET - should accept a topic query and respond with an array of articles filtered by the topic value specified. if the topic is missing, it should respond with all articles", () => {
+      return request(app)
+        .get("/api/articles?topic=mitch")
+        .expect(200)
+        .then(({ body }) => {
+          const { articles } = body;
+
+          expect(body).toHaveProperty("articles");
+          expect(articles).toBeInstanceOf(Array);
+          expect(articles).toHaveLength(11);
+          articles.forEach((article) => {
+            expect(article).toHaveProperty("topic", "mitch");
+          });
+        });
+    });
+    it("200: GET - should accept a topic query and a sort_by query respond with an array of articles(filtered by the topic value if present) sorted by any valid column (defaults to date)", () => {
+      return request(app)
+        .get("/api/articles?topic=mitch&sort_by=author")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles.length > 0).toBe(true);
+          expect(articles).toBeSortedBy("author", { descending: true });
+        });
+    });
+    it("200: GET - should accept a sort_by query respond with an array of articles(filtered by the topic value if present) sorted by any valid column (defaults to date) and ordered by the order query given (asc or desc)", () => {
+      return request(app)
+        .get("/api/articles?topic=mitch&sort_by=author&order=asc")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles).toBeSortedBy("author", { ascending: true });
+        });
+    });
+    it("200: GET - should respond with an array of articles(filtered by the topic value if present) sorted by created_at if no sort_by query is present and ordered by the passed query (defauld to desc)", () => {
+      return request(app)
+        .get("/api/articles?topic=mitch&order=asc")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles).toBeSortedBy("created_at", { ascending: true });
+        });
+    });
+  });
+  it("200: GET - should respond with an array of articles(filtered by the topic value if present and sorted by created_at or the sort_by query given. If no order by query is present, it should default to Desc.", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch&sort_by=author")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeSortedBy("author", { descending: true });
+      });
+  });
+  it("404: GET - should respond with a 404 not found error if the topic passed is valid but doesn't exist in the databse", () => {
+    return request(app)
+      .get("/api/articles?topic=sara&sort_by=author")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("msg", "Topic not found");
+      });
+  });
+  it("200: GET - should respond with an empty array of articles if the topic passed is valid and exists in the databse, but there are no articles associated to it", () => {
+    return request(app)
+      .get("/api/articles?topic=paper&sort_by=author")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("articles", []);
+      });
+  });
+  it("400: GET - should respond with a 400 error if the sort_by query passed is invalid", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch&sort_by=whatever")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("msg", "Bad request");
+      });
+  });
+  it("400: GET - should respond with a 400 error if the order query passed is invalid", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch&sort_by=author&order=whatever")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("msg", "Invalid order query");
+      });
+  });
   describe("GET - /api/articles/:article_id (comment count)", () => {
     it("200: GET - should respond with the article object requested based on the article_id. The article object should now include a comment_count property", () => {
       return request(app)
@@ -378,7 +461,7 @@ describe("app", () => {
       return request(app)
         .get("/api/articles/4")
         .expect(200)
-        .then(({ body: {article} }) => {
+        .then(({ body: { article } }) => {
           expect(article).toHaveProperty("comment_count", "0");
         });
     });

@@ -12,4 +12,15 @@ function fetchTopics() {
     });
 }
 
-module.exports = {fetchTopics};
+function checkTopicExists(topic) {
+  return db.query(`
+  SELECT * FROM topics
+  WHERE slug = $1`, [topic]).then(({rows, rowCount}) => {
+    if (rowCount === 0) {
+      return Promise.reject("Topic not found");
+    }
+    return rows[0];
+  })
+}
+
+module.exports = {fetchTopics, checkTopicExists};
