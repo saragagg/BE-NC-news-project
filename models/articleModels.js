@@ -1,6 +1,13 @@
 const db = require("../db/connection");
+  
 
-function fetchArticles(topic, sort_by = "articles.created_at", order = "DESC") {
+function fetchArticles(topic, sort_by = "created_at", order = "desc") {
+
+  if(!['asc', 'desc'].includes(order)) {
+    return Promise.reject("Invalid order query");
+  }
+
+  const queryValues = [];
   let queryStr = `
   SELECT 
   articles.article_id, articles.title, articles.topic, articles.author, articles.created_at, articles.votes, articles.article_img_url, 
@@ -8,22 +15,21 @@ function fetchArticles(topic, sort_by = "articles.created_at", order = "DESC") {
   FROM articles
   LEFT JOIN comments
   ON articles.article_id=comments.article_id`;
-  const queryValues = [sort_by, order];
-
+  
   if (topic) {
-    queryValues.unshift(topic);
-    queryStr += ` WHERE topic = $1
-    GROUP BY articles.article_id
-    ORDER BY $2, $3`;
-  } else {
-    queryStr += ` GROUP BY articles.article_id
-    ORDER BY $1, $2`;
+    queryValues.push(topic);
+    queryStr += ` WHERE topic = $1`
   }
+
+  queryStr += ` GROUP BY articles.article_id
+    ORDER BY ${sort_by} ${order}`;
 
   return db.query(queryStr, queryValues).then(({ rows }) => {
     return rows;
   });
 }
+
+
 
 function fetchArticleById(article_id) {
   return db
