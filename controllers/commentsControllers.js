@@ -1,4 +1,9 @@
-const { insertComment, fetchCommentsByArticleId } = require("../models/commentModels");
+const {
+  insertComment,
+  fetchCommentsByArticleId,
+  removeCommentById,
+  fetchCommentById
+} = require("../models/commentModels");
 
 const { fetchArticleById } = require("../models/articleModels");
 
@@ -28,4 +33,18 @@ function postComment(req, res, next) {
     });
 }
 
-module.exports = { postComment, getArticleComments };
+function deleteComment(req, res, next) {
+  const { comment_id } = req.params;
+
+  const commentCheck = fetchCommentById(comment_id); 
+  const removeCommentPromise = removeCommentById(comment_id);
+
+  Promise.all([removeCommentPromise, commentCheck]).then(() => {
+      res.status(204).send();
+    })
+    .catch((err) => {
+      next(err);
+    });
+}
+
+module.exports = { postComment, getArticleComments, deleteComment };
