@@ -31,7 +31,33 @@ function insertComment(article_id, username, body) {
     });
 }
 
+function removeCommentById(comment_id) {
+  return db.query(
+    `
+  DELETE FROM comments
+  WHERE comment_id = $1`,
+    [comment_id]
+  ).then(() => {
+    return;
+  })
+}
+
+function fetchCommentById(comment_id) {
+  return db.query(`
+  SELECT * FROM comments
+  WHERE comment_id = $1
+  `, [comment_id]).then(({rows, rowCount}) => {
+    if (rowCount === 0) {
+      return Promise.reject("comment_id not found")
+    }
+
+    return rows[0];
+  })
+}
+
 module.exports = {
   fetchCommentsByArticleId,
   insertComment,
+  removeCommentById,
+  fetchCommentById
 };

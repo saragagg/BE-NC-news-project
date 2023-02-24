@@ -481,4 +481,29 @@ describe("app", () => {
         });
     });
   });
-});
+  describe("DELETE - /api/comments/:comment_id", () => {
+    it("should delete the given comment by comment_id and respond with a 204 status and no content", () => {
+      return request(app)
+      .delete("/api/comments/18")
+      .expect(204)
+      });
+    it("should respond with a 400 bad request message if given an invalid comment_id", () => {
+      return request(app)
+      .delete("/api/comments/invalidId")
+      .expect(400)
+      .then(({body}) => {
+        expect(body).toHaveProperty("msg", "Bad request");
+      })
+    })
+    it("should respond with a 404 not found message if given an valid but non existent comment_id", () => {
+      return request(app)
+      .delete("/api/comments/92")
+      .expect(404)
+      .then(({body}) => {
+        expect(body).toHaveProperty("msg", "comment_id not found");
+      })
+    })
+  })
+ });
+
+

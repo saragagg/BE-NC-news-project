@@ -13,7 +13,7 @@ function handlePSQL400err(err, req, res, next) {
 }
 
 function handleCustomError(err, req, res, next) {
-  const custom404Errors= ["article_id not found", "Topic not found"];
+  const custom404Errors= ["article_id not found", "Topic not found", "comment_id not found"];
   const custom400Errors= ["Invalid sort query", "Invalid order query"];
   
   if (err.statusMessage === "Not Found" && err.statusCode === 404) {
@@ -30,8 +30,6 @@ function handleCustomError(err, req, res, next) {
 }
 
 function handleError500(err, req, res, next) {
-  console.log(err)
-  console.log(err)
   res
     .status(500)
     .send({ msg: "Sorry, there has been an internal server error!" });
