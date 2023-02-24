@@ -522,7 +522,7 @@ describe("app", () => {
           expect(body).toHaveProperty("DELETE /api/comments/:comment_id");
         });
     });
-    it("should respond with a JSON object describing all the available endpoints. Each endpoint object should have the following properties: description(a string), queries(an array) and exampleResponse(an object", () => {
+    it("should respond with a JSON object describing all the available endpoints. Each endpoint property's value will be an object with the following properties: description, queries and exampleResponse.", () => {
       return request(app)
         .get("/api")
         .expect(200)
