@@ -3,7 +3,8 @@ const request = require("supertest");
 const db = require("../db/connection");
 const seed = require("../db/seeds/seed.js");
 const data = require("../db/data/test-data");
-const { forEach } = require("../db/data/test-data/articles");
+
+const endpoints = require("../endpoints.json")
 
 beforeEach(() => {
   return seed(data);
@@ -406,46 +407,46 @@ describe("app", () => {
           expect(articles).toBeSortedBy("created_at", { ascending: true });
         });
     });
-  });
-  it("200: GET - should respond with an array of articles(filtered by the topic value if present and sorted by created_at or the sort_by query given. If no order by query is present, it should default to Desc.", () => {
-    return request(app)
-      .get("/api/articles?topic=mitch&sort_by=author")
-      .expect(200)
-      .then(({ body: { articles } }) => {
-        expect(articles).toBeSortedBy("author", { descending: true });
-      });
-  });
-  it("404: GET - should respond with a 404 not found error if the topic passed is valid but doesn't exist in the databse", () => {
-    return request(app)
-      .get("/api/articles?topic=sara&sort_by=author")
-      .expect(404)
-      .then(({ body }) => {
-        expect(body).toHaveProperty("msg", "Topic not found");
-      });
-  });
-  it("200: GET - should respond with an empty array of articles if the topic passed is valid and exists in the databse, but there are no articles associated to it", () => {
-    return request(app)
-      .get("/api/articles?topic=paper&sort_by=author")
-      .expect(200)
-      .then(({ body }) => {
-        expect(body).toHaveProperty("articles", []);
-      });
-  });
-  it("400: GET - should respond with a 400 error if the sort_by query passed is invalid", () => {
-    return request(app)
-      .get("/api/articles?topic=mitch&sort_by=whatever")
-      .expect(400)
-      .then(({ body }) => {
-        expect(body).toHaveProperty("msg", "Bad request");
-      });
-  });
-  it("400: GET - should respond with a 400 error if the order query passed is invalid", () => {
-    return request(app)
-      .get("/api/articles?topic=mitch&sort_by=author&order=whatever")
-      .expect(400)
-      .then(({ body }) => {
-        expect(body).toHaveProperty("msg", "Invalid order query");
-      });
+    it("200: GET - should respond with an array of articles(filtered by the topic value if present and sorted by created_at or the sort_by query given. If no order by query is present, it should default to Desc.", () => {
+      return request(app)
+        .get("/api/articles?topic=mitch&sort_by=author")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles).toBeSortedBy("author", { descending: true });
+        });
+    });
+    it("404: GET - should respond with a 404 not found error if the topic passed is valid but doesn't exist in the databse", () => {
+      return request(app)
+        .get("/api/articles?topic=sara&sort_by=author")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg", "Topic not found");
+        });
+    });
+    it("200: GET - should respond with an empty array of articles if the topic passed is valid and exists in the databse, but there are no articles associated to it", () => {
+      return request(app)
+        .get("/api/articles?topic=paper&sort_by=author")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("articles", []);
+        });
+    });
+    it("400: GET - should respond with a 400 error if the sort_by query passed is invalid", () => {
+      return request(app)
+        .get("/api/articles?topic=mitch&sort_by=whatever")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg", "Bad request");
+        });
+    });
+    it("400: GET - should respond with a 400 error if the order query passed is invalid", () => {
+      return request(app)
+        .get("/api/articles?topic=mitch&sort_by=author&order=whatever")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg", "Invalid order query");
+        });
+    });
   });
   describe("GET - /api/articles/:article_id (comment count)", () => {
     it("200: GET - should respond with the article object requested based on the article_id. The article object should now include a comment_count property", () => {
@@ -483,27 +484,51 @@ describe("app", () => {
   });
   describe("DELETE - /api/comments/:comment_id", () => {
     it("should delete the given comment by comment_id and respond with a 204 status and no content", () => {
-      return request(app)
-      .delete("/api/comments/18")
-      .expect(204)
-      });
+      return request(app).delete("/api/comments/18").expect(204);
+    });
     it("should respond with a 400 bad request message if given an invalid comment_id", () => {
       return request(app)
-      .delete("/api/comments/invalidId")
-      .expect(400)
-      .then(({body}) => {
-        expect(body).toHaveProperty("msg", "Bad request");
-      })
-    })
+        .delete("/api/comments/invalidId")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg", "Bad request");
+        });
+    });
     it("should respond with a 404 not found message if given an valid but non existent comment_id", () => {
       return request(app)
-      .delete("/api/comments/92")
-      .expect(404)
-      .then(({body}) => {
-        expect(body).toHaveProperty("msg", "comment_id not found");
-      })
-    })
+        .delete("/api/comments/92")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg", "comment_id not found");
+        });
+    });
+  });
+  describe("GET - /api", () => {
+    it("should respond with a JSON object describing all the available endpoints on your API", () => {
+      return request(app)
+        .get("/api")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("GET /api");
+          expect(body).toHaveProperty("GET /api/topics");
+          expect(body).toHaveProperty("GET /api/articles");
+          expect(body).toHaveProperty("GET /api/articles/:article_id");
+          expect(body).toHaveProperty("GET /api/articles/:article_id/comments");
+          expect(body).toHaveProperty(
+            "POST /api/articles/:article_id/comments"
+          );
+          expect(body).toHaveProperty("PATCH /api/articles/:article_id");
+          expect(body).toHaveProperty("GET /api/users");
+          expect(body).toHaveProperty("DELETE /api/comments/:comment_id");
+        });
+    });
+    it("should respond with a JSON object describing all the available endpoints. Each endpoint object should have the following properties: description(a string), queries(an array) and exampleResponse(an object", () => {
+      return request(app)
+        .get("/api")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).toEqual(endpoints)
+        });
+    });
   })
- });
-
-
+})

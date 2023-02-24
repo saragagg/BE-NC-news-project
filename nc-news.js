@@ -2,10 +2,12 @@ const express = require("express");
 const app = express();
 const { getTopics } = require("./controllers/topicsControllers");
 
+const { getEndpoints } = require("./controllers/apisControllers");
+
 const {
   getArticles,
   getArticleById,
-  patchArticleVote
+  patchArticleVote,
 } = require("./controllers/articleController");
 
 const {
@@ -27,7 +29,7 @@ app.use(express.json());
 
 app.get("/api/topics", getTopics);
 
-app.get("/api/articles/", getArticles);
+app.get("/api/articles", getArticles);
 
 app.get("/api/articles/:article_id", getArticleById);
 
@@ -39,7 +41,9 @@ app.patch("/api/articles/:article_id", patchArticleVote);
 
 app.get("/api/users", getUsers);
 
-app.delete("/api/comments/:comment_id", deleteComment)
+app.delete("/api/comments/:comment_id", deleteComment);
+
+app.get("/api", getEndpoints);
 
 app.use(handle404NonExistentPaths);
 
