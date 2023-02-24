@@ -10,18 +10,108 @@
     }
   },
   "GET /api/articles": {
-    "description": "serves an array of all topics",
-    "queries": ["author", "topic", "sort_by", "order"],
+    "description": "serves an array of all article objects. It can take a topic query to filter the articles by the given topic(if absent it will respond with all articles), a sort_by query to sort the articles by any valid column(defaults to date) and an order query which can be set to asc or desc (defaults to desc)",
+    "queries": ["topic", "sort_by", "order"],
     "exampleResponse": {
       "articles": [
         {
-          "title": "Seafood substitutions are increasing",
-          "topic": "cooking",
-          "author": "weegembump",
-          "body": "Text from the article..",
-          "created_at": 1527695953341
+          "article_id": 5,
+          "title": "UNCOVERED: catspiracy to bring down democracy",
+          "topic": "cats",
+          "author": "rogersop",
+          "votes": 0,
+          "created_at": "2020-08-03 14:14:00",
+          "article_image_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          "comment_count": "2"
         }
       ]
     }
+  },
+  "GET /api/articles/:article_id": {
+    "description": "serves up an object of the article based on the article_id passed in the request's path",
+    "queries": [],
+    "exampleResponse": {"article": {
+      "article_id": 3,
+      "title": "Eight pug gifs that remind me of mitch",
+      "topic": "mitch",
+      "author": "icellusedkars",
+      "body": "some gifs",
+      "created_at": "2020-11-03T09:12:00.000Z",
+      "votes": 0,
+      "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+      "comment_count": "2"
+    }}
+  },
+  "GET /api/articles/:article_id/comments": {
+    "description": "serves up an array of all the existing comments for the given article based on the article_id",
+    "queries": [],
+    "exampleResponse": {"comments": [{
+      "comment_id": 11,
+      "body": "Ambidextrous marsupial",
+      "article_id": 3,
+      "author": "icellusedkars",
+      "votes": 0,
+      "created_at": "2020-09-19T23:10:00.000Z"
+    },
+    {
+      "comment_id": 10,
+      "body": "git push origin master",
+      "article_id": 3,
+      "author": "icellusedkars",
+      "votes": 0,
+      "created_at": "2020-06-20T07:24:00.000Z"
+    }
+
+    ]}
+  },
+  "POST /api/articles/:article_id/comments": {
+    "description": "posts the new comment passed in the request's body(must be an object with username and body properties) for the article specified by the article_id and serves up an object of the posted comment",
+    "queries": [],
+    "exampleResponse": {
+      "posted_comment": {
+      "article_id": 2,
+      "author": "rogersop",
+      "body": "This article is fantastic",
+      "comment_id": 19,
+      "created_at": "2020-06-20T07:24:00.000Z",
+      "votes": 0
+      }
+    }
+  },
+  "PATCH /api/articles/:article_id": {
+    "description": "updates the vote of the article (specified by the article_id) according to the inc_votes property of the object passed in the request's body. It serves up an object of the updated article",
+    "queries": [],
+    "exampleResponse": {"updatedArticle":  {
+      "article_id": 4,
+      "title": "Student SUES Mitch!",
+      "topic": "mitch",
+      "author": "rogersop",
+      "body": "We all love Mitch and his wonderful, unique typing style. However, the volume of his typing has ALLEGEDLY burst another students eardrums, and they are now suing for damages",
+      "created_at": "2020-05-06T01:14:00.000Z",
+      "votes": 2,
+      "article_img_url":
+        "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+    }}
+  },
+  "GET /api/users": {
+    "description": "serves up an array of user objects. Each object will have the following properties: username, name and avatar_url",
+    "queries": [],
+    "exampleResponse": {"users": [
+      {
+      "username": "butter_bridge",
+      "name": "jonny",
+      "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+      },
+      {
+        "username": "icellusedkars",
+        "name": "sam",
+        "avatar_url": "https://avatars2.githubusercontent.com/u/24604688?s=460&v=4"
+      }
+    ]}
+  },
+  "DELETE /api/comments/:comment_id": {
+    "description": "Deletes the comment specified by the comment_id. It responds with a 204 error status code and no content",
+    "queries": [],
+    "exampleResponse": {}
   }
 }
